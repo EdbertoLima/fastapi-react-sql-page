@@ -1,25 +1,28 @@
 import React, { FC } from 'react';
-import { Route, Redirect } from 'react-router-dom';
-
+import { Navigate, useLocation } from 'react-router-dom';
 import { isAuthenticated } from '../utils/auth';
 
-type PrivateRouteType = {
-  component: React.ComponentType<any>;
-  path?: string | string[];
+type PrivateRouteProps = {
+  children: React.ReactNode;
 };
 
-export const PrivateRoute: FC<PrivateRouteType> = ({
-  component,
-  ...rest
-}: any) => (
-  <Route
-    {...rest}
-    render={(props: any) =>
-      isAuthenticated() === true ? (
-        React.createElement(component, props)
-      ) : (
-        <Redirect to="/login" />
-      )
-    }
-  />
-);
+/**
+ * Protects routes by checking authentication state.
+ * If user is not authenticated, redirect them to the login page.
+ * Keeps track of the intended URL so you can redirect back after login.
+ */
+export const PrivateRoute: FC<PrivateRouteProps> = ({ children }) => {
+  const location = useLocation();
+
+  if (!isAuthenticated()) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
+  }
+
+  return <>{children}</>;
+};

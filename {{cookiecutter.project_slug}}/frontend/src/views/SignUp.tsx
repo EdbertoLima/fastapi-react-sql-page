@@ -1,134 +1,103 @@
 import React, { FC, useState } from 'react';
-import { Paper, Grid, TextField, Button } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { Face, Fingerprint } from '@material-ui/icons';
-import { Alert } from '@material-ui/lab';
-import { Redirect } from 'react-router-dom';
-import { useHistory } from 'react-router';
+import {
+  Paper,
+  Grid,
+  TextField,
+  Button,
+  Alert
+} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Face, Fingerprint } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 import { signUp, isAuthenticated } from '../utils/auth';
 
-const useStyles = makeStyles((theme) => ({
-  margin: {
-    margin: theme.spacing(2),
-  },
-  padding: {
-    padding: theme.spacing(1),
-  },
-  button: {
-    textTransform: 'none',
-  },
-  marginTop: {
-    marginTop: 10,
-  },
+const useStyles = makeStyles(() => ({
+  margin: { margin: 8 },
+  padding: { padding: 8 },
+  button: { textTransform: 'none' },
+  marginTop: { marginTop: 10 }
 }));
 
 export const SignUp: FC = () => {
   const classes = useStyles();
-  const history = useHistory();
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
 
-  const handleSubmit = async (_: React.MouseEvent) => {
-    // Password confirmation validation
-    if (password !== passwordConfirmation) setError('Passwords do not match');
-    else {
-      setError('');
-      try {
-        const data = await signUp(email, password, passwordConfirmation);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [error, setError] = useState('');
 
-        if (data) {
-          history.push('/');
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          // handle errors thrown from frontend
-          setError(err.message);
-        } else {
-          // handle errors thrown from backend
-          setError(String(err));
-        }
-      }
+  const handleSubmit = async () => {
+    if (password !== passwordConfirmation) {
+      setError('Passwords do not match');
+      return;
+    }
+    setError('');
+
+    try {
+      const data = await signUp(email, password, passwordConfirmation);
+      if (data) navigate('/');
+    } catch (err: any) {
+      setError(err.message ?? String(err));
     }
   };
 
-  return isAuthenticated() ? (
-    <Redirect to="/" />
-  ) : (
+  if (isAuthenticated()) {
+    navigate('/');
+    return null;
+  }
+
+  return (
     <Paper className={classes.padding}>
       <div className={classes.margin}>
-        <Grid container spacing={8} alignItems="flex-end">
-          <Grid item>
-            <Face />
-          </Grid>
-          <Grid item md={true} sm={true} xs={true}>
+        <Grid container spacing={2} alignItems="flex-end">
+          <Grid item><Face /></Grid>
+          <Grid item md sm xs>
             <TextField
-              id="email"
               label="Email"
               type="email"
               value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.currentTarget.value)
-              }
+              onChange={(e) => setEmail(e.target.value)}
               fullWidth
               autoFocus
               required
             />
           </Grid>
         </Grid>
-        <Grid container spacing={8} alignItems="flex-end">
-          <Grid item>
-            <Fingerprint />
-          </Grid>
-          <Grid item md={true} sm={true} xs={true}>
+
+        <Grid container spacing={2} alignItems="flex-end">
+          <Grid item><Fingerprint /></Grid>
+          <Grid item md sm xs>
             <TextField
-              id="password"
               label="Password"
               type="password"
               value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.currentTarget.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
               fullWidth
               required
             />
           </Grid>
         </Grid>
-        <Grid container spacing={8} alignItems="flex-end">
-          <Grid item>
-            <Fingerprint />
-          </Grid>
-          <Grid item md={true} sm={true} xs={true}>
+
+        <Grid container spacing={2} alignItems="flex-end">
+          <Grid item><Fingerprint /></Grid>
+          <Grid item md sm xs>
             <TextField
-              id="passwordConfirmation"
               label="Confirm password"
               type="password"
               value={passwordConfirmation}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPasswordConfirmation(e.currentTarget.value)
-              }
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
               fullWidth
               required
             />
           </Grid>
         </Grid>
-        <br />
-        <Grid container alignItems="center">
-          {error && (
-            <Grid item>
-              <Alert severity="error">{error}</Alert>
-            </Grid>
-          )}
-        </Grid>
-        <Grid container justify="center" className={classes.marginTop}>
-          <Button
-            variant="outlined"
-            color="primary"
-            className={classes.button}
-            onClick={handleSubmit}
-          >
+
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <Grid container justifyContent="center" className={classes.marginTop}>
+          <Button variant="outlined" onClick={handleSubmit}>
             Sign Up
           </Button>
         </Grid>

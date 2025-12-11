@@ -133,27 +133,56 @@ docker-compose logs -f name_of_service # frontend|backend|db
 ## Project Layout
 
 ```
-backend
-└── app
-    ├── alembic
-    │   └── versions # where migrations are located
-    ├── api
-    │   └── api_v1
-    │       └── endpoints
-    ├── core    # config
-    ├── db      # db models
-    ├── tests   # pytest
-    └── main.py # entrypoint to backend
+.
+├── backend
+│   └── app
+│       ├── alembic
+│       │   └── versions          # DB migrations
+│       ├── api
+│       │   └── api_v1
+│       │       └── endpoints     # FastAPI routes
+│       ├── core                  # config, settings, security
+│       ├── db                    # SQLAlchemy models, session
+│       ├── tests                 # pytest tests for backend
+│       └── main.py               # backend entrypoint (uvicorn / python app/main.py)
+│
+├── frontend
+│   ├── public
+│   └── src
+│       ├── components
+│       │   └── Home.tsx
+│       ├── config
+│       │   └── index.ts          # constants (BASE_URL, BACKEND_URL from env)
+│       ├── __tests__
+│       │   └── test_home.tsx
+│       ├── index.tsx             # React entrypoint (createRoot)
+│       └── App.tsx               # routing + layout
+│
+├── sqlpage
+│   ├── pages
+│   │   ├── index.sql             # main SQLPage homepage (/sqlpage/ or /)
+│   │   ├── reports.sql           # example report page
+│   │   └── admin.sql             # example admin/dashboard page
+│   ├── partials
+│   │   ├── header.sql            # shared header
+│   │   └── footer.sql            # shared footer
+│   ├── assets
+│   │   ├── styles.css            # extra CSS if you want
+│   │   └── logo.svg
+│   └── sqlpage.json              # optional SQLPage config (theme, menu, etc.)
+│   # In the container this whole folder is mounted to /var/www
+│
+├── nginx
+│   └── nginx.conf                # reverse proxy for frontend, backend, sqlpage, pgadmin
+│
+├── pgadmin-data/                 # persisted config for pgAdmin (auto-created by Docker)
+│
+├── .docker/
+│   └── .ipython/                 # your existing IPython volume
+│
+├── docker-compose.yml            # main stack (nginx, backend, frontend, postgres, redis, sqlpage, pgadmin, worker, flower)
+├── .env                           # POSTGRES_*, HOST_PORT, SQLPAGE_PORT, PGADMIN_* (templated by Cookiecutter)
+├── README.md
+└── etc...
 
-frontend
-└── public
-└── src
-    ├── components
-    │   └── Home.tsx
-    ├── config
-    │   └── index.tsx   # constants
-    ├── __tests__
-    │   └── test_home.tsx
-    ├── index.tsx   # entrypoint
-    └── App.tsx     # handles routing
 ```

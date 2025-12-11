@@ -1,118 +1,160 @@
 import decodeJwt from 'jwt-decode';
 
-export const isAuthenticated = () => {
-  const permissions = localStorage.getItem('permissions');
-  if (!permissions) {
+type TokenPermissions = 'user' | 'admin' | string;
+
+interface TokenPayload {
+  permissions?: TokenPermissions;
+  exp?: number; // standard JWT exp claim (seconds since epoch)
+  [key: string]: unknown;
+}
+
+interface AuthResponse {
+  access_token: string;
+  token_type?: string;
+  [key: string]: unknown;
+}
+
+const TOKEN_KEY = 'token';
+const PERMISSIONS_KEY = 'permissions';
+
+const storeAuthData = (token: string) => {
+  const decoded = decodeJwt<TokenPayload>(token);
+  if (decoded.permissions) {
+    localStorage.setItem(PERMISSIONS_KEY, decoded.permissions);
+  }
+  localStorage.setItem(TOKEN_KEY, token);
+};
+
+export const isAuthenticated = (): boolean => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) return false;
+
+  try {
+    const decoded = decodeJwt<TokenPayload>(token);
+
+    // Optional: check expiry if present
+    if (decoded.exp && typeof decoded.exp === 'number') {
+      const expiresAt = decoded.exp * 1000; // exp is in seconds
+      if (Date.now() >= expiresAt) {
+        // token expired -> clean up and treat as not authenticated
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(PERMISSIONS_KEY);
+        return false;
+      }
+    }
+
+    const permissions = decoded.permissions ?? localStorage.getItem(PERMISSIONS_KEY);
+    return permissions === 'user' || permissions === 'admin';
+  } catch {
+    // invalid token
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(PERMISSIONS_KEY);
     return false;
   }
-  return permissions === 'user' || permissions === 'admin' ? true : false;
 };
 
 /**
- * Login to backend and store JSON web token on success
+ * Login to backend and store JSON web token on success.
  *
  * @param email
  * @param password
  * @returns JSON data containing access token on success
  * @throws Error on http errors or failed attempts
  */
-export const login = async (email: string, password: string) => {
-  // Assert email or password is not empty
-  if (!(email.length > 0) || !(password.length > 0)) {
+export const login = async (
+  email: string,
+  password: string,
+): Promise<AuthResponse> => {
+  if (!email || !password) {
     throw new Error('Email or password was not provided');
   }
+
   const formData = new FormData();
-  // OAuth2 expects form data, not JSON data
   formData.append('username', email);
   formData.append('password', password);
 
-  const request = new Request('/api/token', {
+  const response = await fetch('/api/token', {
     method: 'POST',
     body: formData,
   });
 
-  const response = await fetch(request);
-
-  if (response.status === 500) {
-    throw new Error('Internal server error');
+  let data: any;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
   }
 
-  const data = await response.json();
-
-  if (response.status > 400 && response.status < 500) {
-    if (data.detail) {
-      throw data.detail;
+  if (!response.ok) {
+    if (response.status === 500) {
+      throw new Error('Internal server error');
     }
-    throw data;
+    if (data?.detail) {
+      // backend error in FastAPI style
+      throw new Error(String(data.detail));
+    }
+    throw new Error(data ? JSON.stringify(data) : 'Login failed');
   }
 
-  if ('access_token' in data) {
-    const decodedToken: any = decodeJwt(data['access_token']);
-    localStorage.setItem('token', data['access_token']);
-    localStorage.setItem('permissions', decodedToken.permissions);
+  if (data && typeof data.access_token === 'string') {
+    storeAuthData(data.access_token);
   }
 
-  return data;
+  return data as AuthResponse;
 };
 
 /**
- * Sign up via backend and store JSON web token on success
+ * Sign up via backend and store JSON web token on success.
  *
- * @param email
- * @param password
- * @returns JSON data containing access token on success
  * @throws Error on http errors or failed attempts
  */
 export const signUp = async (
   email: string,
   password: string,
-  passwordConfirmation: string
-) => {
-  // Assert email or password or password confirmation is not empty
-  if (!(email.length > 0)) {
-    throw new Error('Email was not provided');
-  }
-  if (!(password.length > 0)) {
-    throw new Error('Password was not provided');
-  }
-  if (!(passwordConfirmation.length > 0)) {
-    throw new Error('Password confirmation was not provided');
+  passwordConfirmation: string,
+): Promise<AuthResponse> => {
+  if (!email) throw new Error('Email was not provided');
+  if (!password) throw new Error('Password was not provided');
+  if (!passwordConfirmation) throw new Error('Password confirmation was not provided');
+
+  if (password !== passwordConfirmation) {
+    throw new Error('Passwords do not match');
   }
 
   const formData = new FormData();
-  // OAuth2 expects form data, not JSON data
   formData.append('username', email);
   formData.append('password', password);
 
-  const request = new Request('/api/signup', {
+  const response = await fetch('/api/signup', {
     method: 'POST',
     body: formData,
   });
 
-  const response = await fetch(request);
-
-  if (response.status === 500) {
-    throw new Error('Internal server error');
+  let data: any;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
   }
 
-  const data = await response.json();
-  if (response.status > 400 && response.status < 500) {
-    if (data.detail) {
-      throw data.detail;
+  if (!response.ok) {
+    if (response.status === 500) {
+      throw new Error('Internal server error');
     }
-    throw data;
+    if (data?.detail) {
+      throw new Error(String(data.detail));
+    }
+    throw new Error(data ? JSON.stringify(data) : 'Sign up failed');
   }
 
-  if ('access_token' in data) {
-    const decodedToken: any = decodeJwt(data['access_token']);
-    localStorage.setItem('token', data['access_token']);
-    localStorage.setItem('permissions', decodedToken.permissions);
+  if (data && typeof data.access_token === 'string') {
+    storeAuthData(data.access_token);
   }
 
-  return data;
+  return data as AuthResponse;
 };
 
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('permissions');
+export const logout = (): void => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(PERMISSIONS_KEY);
 };

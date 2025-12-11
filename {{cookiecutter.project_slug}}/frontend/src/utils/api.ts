@@ -1,13 +1,30 @@
 import { BACKEND_URL } from '../config';
 
-export const getMessage = async () => {
+type BackendMessageResponse = {
+  message?: string;
+  [key: string]: unknown;
+};
+
+/**
+ * Fetch a simple message from the backend.
+ * @returns The `message` string from the backend.
+ * @throws Error if response is not ok or message is missing.
+ */
+export const getMessage = async (): Promise<string> => {
   const response = await fetch(BACKEND_URL);
 
-  const data = await response.json();
+  if (!response.ok) {
+    // include status text for better debugging
+    throw new Error(
+      `Failed to get message from backend (${response.status} ${response.statusText})`,
+    );
+  }
 
-  if (data.message) {
+  const data = (await response.json()) as BackendMessageResponse;
+
+  if (typeof data.message === 'string') {
     return data.message;
   }
 
-  return Promise.reject('Failed to get message from backend');
+  throw new Error('Failed to get message from backend: no "message" field');
 };

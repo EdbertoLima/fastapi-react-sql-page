@@ -1,37 +1,43 @@
 import React, { FC } from 'react';
-import { fetchUtils, Admin as ReactAdmin, Resource } from 'react-admin';
+import { Admin, Resource, fetchUtils } from 'react-admin';
 import simpleRestProvider from 'ra-data-simple-rest';
+
 import authProvider from './authProvider';
-
 import { UserList, UserEdit, UserCreate } from './Users';
+import { BACKEND_URL } from '../config';
 
-const httpClient = (url: any, options: any) => {
-  if (!options) {
-    options = {};
-  }
+// Add auth header for FastAPI JWT
+const httpClient = (url: string, options: any = {}) => {
   if (!options.headers) {
     options.headers = new Headers({ Accept: 'application/json' });
   }
   const token = localStorage.getItem('token');
-  options.headers.set('Authorization', `Bearer ${token}`);
+  if (token) {
+    options.headers.set('Authorization', `Bearer ${token}`);
+  }
   return fetchUtils.fetchJson(url, options);
 };
 
-const dataProvider = simpleRestProvider('api/v1', httpClient);
+// RA v4 requires FULL URL for REST provider
+const apiUrl = `${BACKEND_URL}`;
+const dataProvider = simpleRestProvider(apiUrl, httpClient);
 
-export const Admin: FC = () => {
-  return (
-    <ReactAdmin dataProvider={dataProvider} authProvider={authProvider}>
-      {(permissions: 'admin' | 'user') => [
-        permissions === 'admin' ? (
+export const AdminApp: FC = () => (
+  <Admin
+    dataProvider={dataProvider}
+    authProvider={authProvider}
+  >
+    {permissions => (
+      <>
+        {permissions === 'admin' && (
           <Resource
             name="users"
             list={UserList}
             edit={UserEdit}
             create={UserCreate}
           />
-        ) : null,
-      ]}
-    </ReactAdmin>
-  );
-};
+        )}
+      </>
+    )}
+  </Admin>
+);

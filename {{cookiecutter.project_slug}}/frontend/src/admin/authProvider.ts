@@ -1,54 +1,84 @@
 import decodeJwt from 'jwt-decode';
 
-type loginFormType = {
-  username: string;
-  password: string;
+interface TokenPayload {
+  permissions?: string;
+  exp?: number;
+}
+
+const TOKEN_KEY = 'token';
+const PERMISSIONS_KEY = 'permissions';
+
+const storeToken = (token: string) => {
+  const decoded = decodeJwt<TokenPayload>(token);
+  if (decoded.permissions) {
+    localStorage.setItem(PERMISSIONS_KEY, decoded.permissions);
+  }
+  localStorage.setItem(TOKEN_KEY, token);
 };
 
 const authProvider = {
-  login: ({ username, password }: loginFormType) => {
-    let formData = new FormData();
+  login: async ({ username, password }: { username: string; password: string }) => {
+    const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
-    const request = new Request('/api/token', {
+
+    const response = await fetch('/api/token', {
       method: 'POST',
       body: formData,
     });
-    return fetch(request)
-      .then((response) => {
-        if (response.status < 200 || response.status >= 300) {
-          throw new Error(response.statusText);
-        }
-        return response.json();
-      })
-      .then(({ access_token }) => {
-        const decodedToken: any = decodeJwt(access_token);
-        if (decodedToken.permissions !== 'admin') {
-          throw new Error('Forbidden');
-        }
-        localStorage.setItem('token', access_token);
-        localStorage.setItem('permissions', decodedToken.permissions);
-      });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.detail || 'Login failed');
+    }
+
+    if (data.access_token) {
+      storeToken(data.access_token);
+      return Promise.resolve();
+    }
+
+    throw new Error('Invalid token response');
   },
+
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('permissions');
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(PERMISSIONS_KEY);
     return Promise.resolve();
   },
-  checkError: (error: { status: number }) => {
-    const status = error.status;
+
+  checkError: (error: any) => {
+    const status = error?.status;
+
+    // 401 / 403 → force logout
     if (status === 401 || status === 403) {
-      localStorage.removeItem('token');
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(PERMISSIONS_KEY);
       return Promise.reject();
     }
     return Promise.resolve();
   },
-  checkAuth: () =>
-    localStorage.getItem('token') ? Promise.resolve() : Promise.reject(),
+
+  checkAuth: () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return Promise.reject();
+
+    try {
+      const decoded = decodeJwt<TokenPayload>(token);
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem(TOKEN_KEY);
+        return Promise.reject();
+      }
+      return Promise.resolve();
+    } catch {
+      localStorage.removeItem(TOKEN_KEY);
+      return Promise.reject();
+    }
+  },
+
   getPermissions: () => {
-    const role = localStorage.getItem('permissions');
-    return role ? Promise.resolve(role) : Promise.reject();
-    // localStorage.getItem('token') ? Promise.resolve() : Promise.reject(),
+    const permissions = localStorage.getItem(PERMISSIONS_KEY);
+    return Promise.resolve(permissions || 'user');
   },
 };
 

@@ -16,12 +16,12 @@ modern stack.
 
 ## Features
 
-- **[FastAPI](https://fastapi.tiangolo.com/)** (Python 3.8)
-  - JWT authentication using [OAuth2 "password
-    flow"](https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/) and
+- **[FastAPI](https://fastapi.tiangolo.com/)** (Python 3.12+)
+  - JWT authentication using [OAuth2 "password flow"](https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/) and
     PyJWT
-- **[React](https://reactjs.org/)** (with Typescript)
-  - [react-router v5](https://reacttraining.com/react-router/) to handle routing
+- **[React](https://reactjs.org/)** (React 19 with TypeScript)
+  - [react-router v6](https://reactrouter.com/) to handle routing
+  - [Vite](https://vitejs.dev/) for fast development and building
   - [Utility functions](#Frontend-Utilities) and [higher-order
     components](#Higher-Order-Components) for handling authentication
 - **[PostgreSQL](https://www.postgresql.org/)** for the database
@@ -45,6 +45,9 @@ modern stack.
 - **[react-admin](https://github.com/marmelab/react-admin)** for the admin
   dashboard
   - Using the same token based authentication as FastAPI backend (JWT)
+- **[SQLPage](https://sql.ophir.dev/)** for building dynamic web interfaces with SQL
+  - Direct database access for rapid prototyping
+  - Pre-configured with sample pages for database exploration
 
 ## Table of Contents
 
@@ -52,6 +55,7 @@ modern stack.
 - [Quick Start](#quick-start)
 - [Develop](#develop)
 - [Admin Dashboard](#admin-dashboard)
+- [SQLPage Interface](#sqlpage-interface)
 - [Security](#security)
 - [Testing](#testing)
   - [Fixtures](#fixtures)
@@ -154,13 +158,19 @@ Once this finishes you can navigate to the port set during setup (default is
 ![default create-react-app](assets/create-react-app.png)
 
 _Note: If you see an Nginx error at first with a `502: Bad Gateway` page, you
-may have to wait for webpack to build the development server (the nginx
+may have to wait for Vite to build the development server (the nginx
 container builds much more quickly)._
 
 Login screen: ![regular login](assets/regular-login.png)
 
-The backend docs will be at `http://localhost:8000/api/docs`. ![API
+The backend API docs will be at `http://localhost:8000/api/docs`. ![API
 Docs](assets/api-docs.png)
+
+Additional interfaces:
+- **Admin Dashboard**: `http://localhost:8000/admin`
+- **SQLPage Interface**: `http://localhost:8000/sqlpage`
+- **Flower (Task Monitor)**: `http://localhost:5555`
+- **pgAdmin (Database Admin)**: `http://localhost:5050`
 
 ## Admin Dashboard
 
@@ -183,6 +193,35 @@ the backend.
 
 The admin dashboard is kept in the `frontend/src/admin` directory to keep it
 separate from the regular frontend.
+
+## SQLPage Interface
+
+This template includes [SQLPage](https://sql.ophir.dev/), a powerful tool that lets you build dynamic web interfaces using only SQL queries.
+
+After starting the project, navigate to `http://localhost:8000/sqlpage`. You'll find:
+
+- **Database Info** - View database statistics and available tables
+- **Users List** - Browse all application users with statistics
+- **Custom Pages** - Add your own `.sql` files in the `sqlpage/` directory
+
+### Creating New SQLPage Pages
+
+Simply create a new `.sql` file in the `sqlpage/` directory:
+
+```sql
+-- sqlpage/my-page.sql
+SELECT 'text' as component,
+       '# My Custom Page' as contents_md;
+
+SELECT 'table' as component;
+SELECT * FROM users LIMIT 10;
+```
+
+Then access it at `http://localhost:8000/sqlpage/my-page.sql`.
+
+For complete documentation and available components, visit the [SQLPage Documentation](https://sql.ophir.dev/documentation.sql).
+
+**Security Note**: SQLPage has direct database access. For production deployments, consider adding authentication middleware or restricting access to admin users only.
 
 ## Security
 

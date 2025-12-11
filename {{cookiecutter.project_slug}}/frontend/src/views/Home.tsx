@@ -1,24 +1,27 @@
 import React, { FC, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';      // ← updated
+import { Link } from 'react-router-dom';
 
 import { getMessage } from '../utils/api';
 import { isAuthenticated } from '../utils/auth';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   link: {
     color: '#61dafb',
+    display: 'block',
+    margin: '8px 0'
   },
 }));
 
 export const Home: FC = () => {
-  const [message, setMessage] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const classes = useStyles();
 
   const queryBackend = async () => {
     try {
-      const message = await getMessage();
-      setMessage(message);
+      const msg = await getMessage();
+      setMessage(msg);
     } catch (err) {
       setError(String(err));
     }
@@ -27,38 +30,23 @@ export const Home: FC = () => {
   return (
     <>
       {!message && !error && (
-        <a className={classes.link} href="#" onClick={() => queryBackend()}>
+        <button className={classes.link} onClick={queryBackend}>
           Click to make request to backend
-        </a>
+        </button>
       )}
-      {message && (
-        <p>
-          <code>{message}</code>
-        </p>
-      )}
-      {error && (
-        <p>
-          Error: <code>{error}</code>
-        </p>
-      )}
-      <a className={classes.link} href="/admin">
-        Admin Dashboard
-      </a>
-      <a className={classes.link} href="/protected">
-        Protected Route
-      </a>
+
+      {message && <p><code>{message}</code></p>}
+      {error && <p>Error: <code>{error}</code></p>}
+
+      <Link className={classes.link} to="/admin">Admin Dashboard</Link>
+      <Link className={classes.link} to="/protected">Protected Route</Link>
+
       {isAuthenticated() ? (
-        <a className={classes.link} href="/logout">
-          Logout
-        </a>
+        <Link className={classes.link} to="/logout">Logout</Link>
       ) : (
         <>
-          <a className={classes.link} href="/login">
-            Login
-          </a>
-          <a className={classes.link} href="/signup">
-            Sign Up
-          </a>
+          <Link className={classes.link} to="/login">Login</Link>
+          <Link className={classes.link} to="/signup">Sign Up</Link>
         </>
       )}
     </>

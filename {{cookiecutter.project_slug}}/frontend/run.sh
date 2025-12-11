@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
+set -e
 
-case $1 in
-  start)
-    # The '| cat' is to trick Node that this is an non-TTY terminal
-    # then react-scripts won't clear the console.
-    npm start | cat
+case "$1" in
+  start|dev)
+    # run Vite dev server
+    npm run dev
     ;;
   build)
-    npm build
+    npm run build
     ;;
-  test)
-    npm test $@
+  preview)
+    npm run preview
+    ;;
+  lint)
+    npm run lint
+    ;;
+  format)
+    npm run format
     ;;
   *)
-    npm "$@"
+    npm run "$@"
     ;;
 esac
