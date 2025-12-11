@@ -19,7 +19,7 @@ export const PrivateRoute: FC<PrivateRouteProps> = ({ children }) => {
       <Navigate
         to="/login"
         replace
-        state={{ from: location.pathname }}
+        state={{ '{{' }} from: location.pathname {{ '}}' }}
       />
     );
   }

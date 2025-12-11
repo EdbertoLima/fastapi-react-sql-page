@@ -7,5 +7,9 @@
   "postgres_database": "app",
   "superuser_email": "admin@{{cookiecutter.project_name}}.com",
   "superuser_password": "password",
-  "secret_key": "super_secret"
+  "secret_key": "super_secret",
+  "sqlpage_port": "8080",
+  "pgadmin_email": "admin@example.com",
+  "pgadmin_password": "admin",
+  "pgadmin_port": "5050"
 }
