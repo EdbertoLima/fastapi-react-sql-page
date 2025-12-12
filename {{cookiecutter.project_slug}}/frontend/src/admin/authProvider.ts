@@ -1,4 +1,4 @@
-import decodeJwt from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 interface TokenPayload {
   permissions?: string;
@@ -9,7 +9,7 @@ const TOKEN_KEY = 'token';
 const PERMISSIONS_KEY = 'permissions';
 
 const storeToken = (token: string) => {
-  const decoded = decodeJwt<TokenPayload>(token);
+  const decoded = jwtDecode<TokenPayload>(token);
   if (decoded.permissions) {
     localStorage.setItem(PERMISSIONS_KEY, decoded.permissions);
   }
@@ -64,7 +64,7 @@ const authProvider = {
     if (!token) return Promise.reject();
 
     try {
-      const decoded = decodeJwt<TokenPayload>(token);
+      const decoded = jwtDecode<TokenPayload>(token);
       if (decoded.exp && decoded.exp * 1000 < Date.now()) {
         localStorage.removeItem(TOKEN_KEY);
         return Promise.reject();

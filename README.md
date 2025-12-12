@@ -19,7 +19,7 @@ modern stack.
 - **[FastAPI](https://fastapi.tiangolo.com/)** (Python 3.12+)
   - JWT authentication using [OAuth2 "password flow"](https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/) and
     PyJWT
-- **[React](https://reactjs.org/)** (React 19 with TypeScript)
+- **[React](https://reactjs.org/)** (React 18 with TypeScript)
   - [react-router v6](https://reactrouter.com/) to handle routing
   - [Vite](https://vitejs.dev/) for fast development and building
   - [Utility functions](#Frontend-Utilities) and [higher-order
@@ -168,7 +168,7 @@ Docs](assets/api-docs.png)
 
 Additional interfaces:
 - **Admin Dashboard**: `http://localhost:8000/admin`
-- **SQLPage Interface**: `http://localhost:8000/sqlpage`
+- **SQLPage Interface**: `http://localhost:8000/sql`
 - **Flower (Task Monitor)**: `http://localhost:5555`
 - **pgAdmin (Database Admin)**: `http://localhost:5050`
 
@@ -198,7 +198,7 @@ separate from the regular frontend.
 
 This template includes [SQLPage](https://sql.ophir.dev/), a powerful tool that lets you build dynamic web interfaces using only SQL queries.
 
-After starting the project, navigate to `http://localhost:8000/sqlpage`. You'll find:
+After starting the project, navigate to `http://localhost:8000/sql`. You'll find:
 
 - **Database Info** - View database statistics and available tables
 - **Users List** - Browse all application users with statistics
@@ -217,7 +217,7 @@ SELECT 'table' as component;
 SELECT * FROM users LIMIT 10;
 ```
 
-Then access it at `http://localhost:8000/sqlpage/my-page.sql`.
+Then access it at `http://localhost:8000/sql/my-page.sql`.
 
 For complete documentation and available components, visit the [SQLPage Documentation](https://sql.ophir.dev/documentation.sql).
 

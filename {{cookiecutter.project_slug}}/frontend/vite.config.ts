@@ -11,7 +11,9 @@ export default defineConfig({
       usePolling: true, // Required for Docker on Windows/Mac
     },
     hmr: {
-      clientPort: 5173, // Hot Module Replacement port
+      clientPort: 8000, // Hot Module Replacement through nginx
+      protocol: 'ws',
+      host: 'localhost',
     },
   },
   build: {

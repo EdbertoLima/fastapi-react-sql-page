@@ -48,4 +48,4 @@ WHERE is_superuser = TRUE;
 
 -- Back button
 SELECT 'button' as component;
-SELECT '/sqlpage/' as link, 'Back to Home' as title;
+SELECT '/sql/' as link, 'Back to Home' as title;

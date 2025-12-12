@@ -16,13 +16,13 @@ SELECT 'card' as component,
 SELECT
     'Database Info' as title,
     'View your database connection and statistics' as description,
-    '/sqlpage/db-info.sql' as link,
+    '/sql/db-info.sql' as link,
     'View Details' as link_text;
 
 SELECT
     'Users List' as title,
     'Browse all users from the application database' as description,
-    '/sqlpage/users.sql' as link,
+    '/sql/users.sql' as link,
     'View Users' as link_text;
 
 -- Footer

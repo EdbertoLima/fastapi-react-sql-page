@@ -1,4 +1,4 @@
-import decodeJwt from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 type TokenPermissions = 'user' | 'admin' | string;
 
@@ -18,7 +18,7 @@ const TOKEN_KEY = 'token';
 const PERMISSIONS_KEY = 'permissions';
 
 const storeAuthData = (token: string) => {
-  const decoded = decodeJwt<TokenPayload>(token);
+  const decoded = jwtDecode<TokenPayload>(token);
   if (decoded.permissions) {
     localStorage.setItem(PERMISSIONS_KEY, decoded.permissions);
   }
@@ -30,7 +30,7 @@ export const isAuthenticated = (): boolean => {
   if (!token) return false;
 
   try {
-    const decoded = decodeJwt<TokenPayload>(token);
+    const decoded = jwtDecode<TokenPayload>(token);
 
     // Optional: check expiry if present
     if (decoded.exp && typeof decoded.exp === 'number') {

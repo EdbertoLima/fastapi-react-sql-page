@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install dependencies first (better Docker caching)
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy project source
 COPY . .
@@ -13,11 +13,8 @@ COPY . .
 # Environment: development mode
 ENV NODE_ENV=development
 
-# Vite default dev port + optional HMR overlay/websocket port
-EXPOSE 5173     # Vite dev server
-EXPOSE 5174     # Vite HMR (optional)
-EXPOSE 8000     # If you proxy your FastAPI though the container
-EXPOSE 35729    # Legacy livereload (can be removed)
+# Vite dev server port
+EXPOSE 5173
 
 # Ensure run.sh is executable (important!)
 RUN chmod +x /app/run.sh

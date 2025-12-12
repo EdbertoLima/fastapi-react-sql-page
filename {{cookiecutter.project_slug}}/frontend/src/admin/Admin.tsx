@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Admin, Resource, fetchUtils } from 'react-admin';
+import { Admin as ReactAdmin, Resource, fetchUtils } from 'react-admin';
 import simpleRestProvider from 'ra-data-simple-rest';
 
 import authProvider from './authProvider';
@@ -22,8 +22,8 @@ const httpClient = (url: string, options: any = {}) => {
 const apiUrl = `${BACKEND_URL}`;
 const dataProvider = simpleRestProvider(apiUrl, httpClient);
 
-export const AdminApp: FC = () => (
-  <Admin
+export const Admin: FC = () => (
+  <ReactAdmin
     dataProvider={dataProvider}
     authProvider={authProvider}
   >
@@ -39,5 +39,5 @@ export const AdminApp: FC = () => (
         )}
       </>
     )}
-  </Admin>
+  </ReactAdmin>
 );

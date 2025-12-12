@@ -12,12 +12,12 @@ module.exports = {
   env: {
     browser: true,
     node: true,
-    es2023: true,
+    es2021: true,
     jest: true,
   },
   settings: {
     react: {
-      version: 'detect', // auto-detect React 19
+      version: 'detect', // auto-detect React version
     },
     'import/resolver': {
       node: {
@@ -33,7 +33,7 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:jsx-a11y/recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
+    'prettier',
   ],
   rules: {
     // keep your previous custom rules, adjusted for TS
@@ -50,6 +50,7 @@ module.exports = {
     'implicit-arrow-linebreak': 'off',
 
     'react/destructuring-assignment': 'off',
+    'react/react-in-jsx-scope': 'off', // Not needed with React 19
 
     'jsx-a11y/click-events-have-key-events': 'off',
     'jsx-a11y/no-static-element-interactions': 'off',

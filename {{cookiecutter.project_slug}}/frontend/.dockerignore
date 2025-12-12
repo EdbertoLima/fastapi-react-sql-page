@@ -1,2 +1,15 @@
 node_modules
-package-lock.json
+npm-debug.log
+.git
+.gitignore
+README.md
+.env
+.env.local
+.env.*.local
+dist
+build
+coverage
+.vscode
+.idea
+*.log
+.DS_Store

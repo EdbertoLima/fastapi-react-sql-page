@@ -18,7 +18,7 @@ services:
       - "6379:6379"
 
   postgres:
-    image: postgis:18-3.6
+    image: postgis/postgis:18-3.6
     restart: always
     env_file:
       - .env
@@ -29,7 +29,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data:cached
+      - db-data:/var/lib/postgresql:cached
 
   backend:
     build:
@@ -74,7 +74,7 @@ services:
     stdin_open: true
     volumes:
       - "./frontend:/app:cached"
-      - "./frontend/node_modules:/app/node_modules:cached"
+      - /app/node_modules
     environment:
       NODE_ENV: development
     depends_on:
