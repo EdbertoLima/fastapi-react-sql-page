@@ -6,8 +6,8 @@ class UserBase(BaseModel):
     email: str
     is_active: bool = True
     is_superuser: bool = False
-    first_name: str = None
-    last_name: str = None
+    first_name: t.Optional[str] = None
+    last_name: t.Optional[str] = None
 
 
 class UserOut(UserBase):
@@ -41,5 +41,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    email: str = None
+    email: t.Optional[str] = None
     permissions: str = "user"

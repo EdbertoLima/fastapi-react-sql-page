@@ -32,25 +32,35 @@ export const AppRoutes: FC = () => {
   };
 
   return (
-    <div className={classes.app}>
-      <header className={classes.header}>
-        <Routes>
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/logout" element={<LogoutRedirect onLogout={handleLogout} />} />
-          <Route
-            path="/protected"
-            element={
-              <PrivateRoute>
-                <Protected />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </header>
-    </div>
+    <Routes>
+      {/* Admin route without wrapper styles - React Admin handles its own layout */}
+      <Route path="/admin/*" element={<Admin />} />
+
+      {/* Other routes with app styling */}
+      <Route
+        path="*"
+        element={
+          <div className={classes.app}>
+            <header className={classes.header}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/logout" element={<LogoutRedirect onLogout={handleLogout} />} />
+                <Route
+                  path="/protected"
+                  element={
+                    <PrivateRoute>
+                      <Protected />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="/" element={<Home />} />
+              </Routes>
+            </header>
+          </div>
+        }
+      />
+    </Routes>
   );
 };
 

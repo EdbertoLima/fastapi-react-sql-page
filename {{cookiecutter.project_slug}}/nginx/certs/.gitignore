@@ -1,0 +1,9 @@
+# Ignore SSL certificates
+*.crt
+*.key
+*.pem
+
+# Keep the generation script
+!generate_cert.py
+!.gitignore
+!README.md

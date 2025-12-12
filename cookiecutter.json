@@ -2,6 +2,7 @@
   "project_slug": "fastapi-react-project",
   "project_name": "{{ cookiecutter.project_slug }}",
   "port": "8000",
+  "https_port": "8443",
   "postgres_user": "postgres",
   "postgres_password": "password",
   "postgres_database": "app",

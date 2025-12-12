@@ -24,6 +24,7 @@ const dataProvider = simpleRestProvider(apiUrl, httpClient);
 
 export const Admin: FC = () => (
   <ReactAdmin
+    basename="/admin"
     dataProvider={dataProvider}
     authProvider={authProvider}
   >

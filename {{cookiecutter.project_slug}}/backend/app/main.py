@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 import uvicorn
 
@@ -13,6 +14,19 @@ from app import tasks
 
 app = FastAPI(
     title=config.settings.PROJECT_NAME, docs_url="/api/docs", openapi_url="/api/openapi.json"
+)
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:{{cookiecutter.port}}",
+        "https://localhost:{{cookiecutter.https_port}}",
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
